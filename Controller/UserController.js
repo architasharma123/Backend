@@ -42,8 +42,8 @@ const SignUp = async (req, res) => {
           otp,  
         };
   
-        //  const useremail = checkData.email
-        //  console.log(useremail)
+         const useremail = checkData.email
+         console.log(useremail)
         //  mail("","",useremail ,req.body,req.user)
     // Create user in our database
     const data = await User.create(userData);
@@ -54,6 +54,7 @@ const SignUp = async (req, res) => {
 };
 
 const login = async(req,res)=>{
+
     if(!req.body.phoneNo){
       return res.status(400).json({error: 'parameters are missing'})
     }    
@@ -84,6 +85,24 @@ const login = async(req,res)=>{
     }
   };
 
+  const findOtp = async(req,res)=>{
+// console.log(req)
+      try{
+    console.log(req.body,"...................")
+
+      let {otp} = req.body
+       
+      const data = await User.find({otp:otp})
+
+      return res.send({message:"success",data:data})
+
+
+      }catch(error){
+          return res.status(400).json({"message":"Something went wrong",error:error})
+      }
+  };
+
+
 const list = async(req,res) => {
   try{
 
@@ -98,7 +117,7 @@ const list = async(req,res) => {
     }
 
   }catch(error){
-    res.status(400).send({message:"sonthing went wrong",error:error})
+    res.status(400).send({message:"something went wrong",error:error})
   }
 }
 
@@ -173,4 +192,5 @@ module.exports = {
     update:update,
     profile:profile,
     deleteall:deleteall,
+    findOtp:findOtp
 }
