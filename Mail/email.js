@@ -1,10 +1,17 @@
 var nodemailer = require("nodemailer");
-
+const handlebars = require("handlebars")
 var path = require('path')
-//var image = require('../mail/image.jpeg')
+var fs=require('fs');
 
-const mail = async(req,res)=>{ 
-
+const mail = async(req,res, useremail , data , userdata)=>{ 
+    const filePath = path.join(__dirname, "./html.html");
+    const source = fs.readFileSync(filePath, "utf-8").toString();
+    const template = handlebars.compile(source);
+    var replacements = {
+            username: userdata.firstName, // user token firstname
+            email : userdata.email, // user token email
+        };
+    var htmlToSend = template(replacements);
     console.log("mailer")
     console.log(__dirname)
     var sender = nodemailer.createTransport({
@@ -15,22 +22,13 @@ const mail = async(req,res)=>{
     } 
 });
  console.log(sender)
+ 
 var mail = {
     from: 'archita.eminence@gmail.com',
-    to: 'sharmaarchita563@gmail.com',
+    to: useremail,
     subject: 'Sending Email using Node.js',
     text: 'That was easy!',
-    // html:
-    // "<h1>GeeksforGeeks</h1>",
-   // <p>I love geeksforgeeks</p>,
-
-  attachments: [
-        {
-            filename: 'image.jpeg',
-            path: path.join(__dirname ,'../mail/image.jpeg')
-           // cid: 'uniq-mailtrap.png'
-        }
-    ]
+    html: htmlToSend
  };
 
 sender.sendMail(mail, function (error, info) {
@@ -41,7 +39,8 @@ sender.sendMail(mail, function (error, info) {
         console.log('Email sent successfully: '+ info.response);
     }
 });
-}
+
+};
 module.exports = {
     mail
 }

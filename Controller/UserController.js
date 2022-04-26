@@ -11,6 +11,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { Console } = require('console');
+const { mail } = require('../Mail/email');
 
 const SignUp = async (req, res) => {
     await check('email').isEmail(['@','.']).withMessage("invalid email").run(req)
@@ -23,9 +24,9 @@ const SignUp = async (req, res) => {
        return res.send({'error':result.errors[0].msg})
    }
           console.log(req.body)
-          let body = req.body
+          let { name, email, phoneNo, role} = req.body
           
-      var checkData = await User.findOne({email :body.email, phoneNo: body.phoneNo})
+      var checkData = await User.findOne({email :email, phoneNo:phoneNo})
 
       if (checkData) {
         return res.status(400).json({message:"User already registered"});
@@ -33,13 +34,17 @@ const SignUp = async (req, res) => {
       } else { 
         const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
         console.log(otp,"///////////////////")
-      let userData = {
-          name : body.name,
-          email : body.email,
-          phoneNo : body.phoneNo,
-          otp : otp,  
-      };
-    
+        let userData = {
+          name,
+          email,
+          phoneNo,
+          role,
+          otp,  
+        };
+  
+        //  const useremail = checkData.email
+        //  console.log(useremail)
+        //  mail("","",useremail ,req.body,req.user)
     // Create user in our database
     const data = await User.create(userData);
 
@@ -49,21 +54,21 @@ const SignUp = async (req, res) => {
 };
 
 const login = async(req,res)=>{
-    if(!req.body.email || !req.body.password){
+    if(!req.body.phoneNo){
       return res.status(400).json({error: 'parameters are missing'})
     }    
 
-    const {email, password}= req.body;
+    const {phoneNo}= req.body;
 
-    const user = await User.findOne({email:email})
+    const user = await User.findOne({phoneNo:phoneNo})
   
     if(user){
-      
-      const validPassword = await bcrypt.compare(password, user.password);
+        const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
+      const updateOtp = await User.findOneAndUpdate({_id:user._id},{otp:otp});
      
-         if (validPassword) {
+         if (updateOtp) {
           // Create token
-            let token = jwt.sign({user},
+            let token = jwt.sign({updateOtp},
                 "longer-secret-key-is-better",
             {
               expiresIn: "24h",
@@ -72,7 +77,7 @@ const login = async(req,res)=>{
 
         res.status(200).json({ message: "Login successfully" ,user,token:token});
       } else {
-        res.status(400).json({ error: "Invalid Password" });
+        res.status(400).json({ error: "Invalid otp" });
       }
     }else{
         res.status(400).json({message:"Not Found"})

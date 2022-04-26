@@ -7,6 +7,7 @@ const  UserSchema = new Schema ({
     email : {type:String, require: false},
     phoneNo : {type:Number, require: false},
     otp: {type:Number,require: true},
+    role : {type:Number,enum:[1,2],require:true,default:2},
     createdAt:{type:Date,default:Date.now()},
     updatedAt:{type:Date,default:Date.now()}
  
