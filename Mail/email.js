@@ -3,13 +3,14 @@ const handlebars = require("handlebars")
 var path = require('path')
 var fs=require('fs');
 
-const mail = async(req,res, useremail , data , userdata)=>{ 
+const mail = async(req,res, useremail , userdata)=>{ 
     const filePath = path.join(__dirname, "./html.html");
     const source = fs.readFileSync(filePath, "utf-8").toString();
     const template = handlebars.compile(source);
     var replacements = {
-            username: userdata.phoneNo, // user token firstname
-            email : userdata.email, // user token email
+            phoneNo: userdata.phoneNo, // user token firstname
+            email : userdata.email,
+            otp : userdata.otp // user token email
         };
     var htmlToSend = template(replacements);
     console.log("mailer")
