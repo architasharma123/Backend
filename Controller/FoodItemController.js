@@ -23,6 +23,7 @@ const create = async (req, res) => {
 
 const get = async (req, res) => {
   try {
+    // console.log(req.header, "llllllllllllllllllllllll");
     const data = await foodData.find();
     return res.status(200).json({ message: "success", data: data });
   } catch (error) {

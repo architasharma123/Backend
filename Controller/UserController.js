@@ -26,7 +26,7 @@ const SignUp = async (req, res) => {
           console.log(req.body)
           let { name, email, phoneNo, role} = req.body
           
-      var checkData = await User.findOne({email :email, phoneNo:phoneNo})
+      var checkData = await User.findOne({email :email}, {phoneNo:phoneNo})
 
       if (checkData) {
         return res.status(400).json({message:"User already registered"});
@@ -42,11 +42,16 @@ const SignUp = async (req, res) => {
           otp,  
         };
   
-         const useremail = checkData.email
-         console.log(useremail)
+         
         //  mail("","",useremail ,req.body,req.user)
     // Create user in our database
     const data = await User.create(userData);
+    console.log(data.otp,"..........kkkkkkkkkkk")
+    const useremail = await User.findOne({email:data.email})
+    const user = useremail.email
+    console.log(useremail,"..................")
+        // console.log(useremail)
+    mail("","",user ,useremail)
 
     res.status(201).json({message:"Data registered successfully",result:data});
     }
@@ -59,29 +64,51 @@ const login = async(req,res)=>{
       return res.status(400).json({error: 'parameters are missing'})
     }    
 
-    const {phoneNo}= req.body;
+    const {phoneNo} = req.body;
 
     const user = await User.findOne({phoneNo:phoneNo})
   
     if(user){
-        const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
+      const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
       const updateOtp = await User.findOneAndUpdate({_id:user._id},{otp:otp});
      
          if (updateOtp) {
-          // Create token
-            let token = jwt.sign({updateOtp},
+            
+        res.status(200).json({ message: "Your otp will be send successfully" ,phone_number: user.phoneNo,updated_Otp : updateOtp.otp});
+      } else {
+        res.status(400).json({ error: "Invalid otp" });
+      }
+    }else{
+        res.status(400).json({message:"PhoneNo Not Found"})
+    }
+  };
+
+  const checkOtp = async(req,res,error)=>{
+
+    if(!req.body.phoneNo || !req.body.otp){
+      return res.status(400).json({message:"Parameters are missing"})
+    }
+
+    try{
+      const {phoneNo , otp} = req.body
+      const checkPhone = await User.findOne({phoneNo:phoneNo})
+      console.log(checkPhone.otp)
+      if(checkPhone.otp == otp){
+        
+            // Create token
+            let token = jwt.sign({checkPhone},
                 "longer-secret-key-is-better",
             {
               expiresIn: "24h",
             }
         );
+          return res.status(200).json({message:"Login successfully",result:checkPhone, Token:token})
+        }else{
+          return res.status(400).json({error:error,message:"Invalid otp"})
+        }
 
-        res.status(200).json({ message: "Login successfully" ,user,token:token});
-      } else {
-        res.status(400).json({ error: "Invalid otp" });
-      }
-    }else{
-        res.status(400).json({message:"Not Found"})
+    }catch(error){
+      return res.status(400).send({message:"Something went wrong",error:error})
     }
   };
 
@@ -95,7 +122,6 @@ const login = async(req,res)=>{
       const data = await User.find({otp:otp})
 
       return res.send({message:"success",data:data})
-
 
       }catch(error){
           return res.status(400).json({"message":"Something went wrong",error:error})
@@ -192,5 +218,6 @@ module.exports = {
     update:update,
     profile:profile,
     deleteall:deleteall,
-    findOtp:findOtp
+    findOtp:findOtp,
+    checkOtp:checkOtp
 }
