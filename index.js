@@ -5,9 +5,16 @@ var multer = require('multer')
 var fs = require('fs')
 var path = require('path')
 
+const cron = require('node-cron');
+
+cron.schedule('* * * * *', () => {
+  console.log('running a task every minute');
+});
+
 const cors = require('cors');
 var app = express();
 const Routes = require('./Routes/UserRoute')
+const Route1 = require('./Routes/UserAddressRoute')
 
 const Router = express.Router();
 mongoose.connect('mongodb://localhost:27017/zomato');
@@ -21,6 +28,14 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 app.use('/',Routes);
+app.use('/',Route1);
+
+// cron.schedule("0 0 28-31 * *", () => {
+//   if (date.getTomorrow() ===  "1") {
+//     // that's the last day
+//    doSomeTasks()
+//   } 
+// });
 
 app.use((req,res,next) => { 
   next()

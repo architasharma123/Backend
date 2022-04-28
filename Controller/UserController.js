@@ -16,7 +16,6 @@ const { mail } = require('../Mail/email');
 const SignUp = async (req, res) => {
     await check('email').isEmail(['@','.']).withMessage("invalid email").run(req)
     await check('phoneNo').isLength({min:10,max:12}).withMessage("invalid phoneNo").run(req)
-  //  const otpGenerated = otpGenerator.generate(6);
 
    var result = validationResult(req)
    console.log(result)
@@ -26,7 +25,7 @@ const SignUp = async (req, res) => {
           console.log(req.body)
           let { name, email, phoneNo, role} = req.body
           
-      var checkData = await User.findOne({email :email}, {phoneNo:phoneNo})
+      var checkData = await User.findOne({email:email}, {phoneNo:phoneNo})
 
       if (checkData) {
         return res.status(400).json({message:"User already registered"});
@@ -40,53 +39,41 @@ const SignUp = async (req, res) => {
           phoneNo,
           role,
           otp,  
-        };
-  
-         
-        //  mail("","",useremail ,req.body,req.user)
+        };  
     // Create user in our database
     const data = await User.create(userData);
     console.log(data.otp,"..........kkkkkkkkkkk")
     const useremail = await User.findOne({email:data.email})
     const user = useremail.email
-    console.log(user,"..................")
-        // console.log(useremail)
-    mail("","",user ,req.body)
+    console.log(useremail,"..................")
+    mail("","",user ,useremail)
 
     res.status(201).json({message:"Data registered successfully",result:data});
     }
-
 };
 
 const login = async(req,res)=>{
 
     if(!req.body.phoneNo){
-      return res.status(400).json({error: 'parameters are missing'})
+      return res.status(400).json({error: 'Parameters are missing'})
     }    
 
-    const {phoneNo}= req.body;
+    const {phoneNo} = req.body;
 
     const user = await User.findOne({phoneNo:phoneNo})
   
     if(user){
-        const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
+      const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
       const updateOtp = await User.findOneAndUpdate({_id:user._id},{otp:otp});
      
-         if (updateOtp) {
-          // Create token
-        //     let token = jwt.sign({updateOtp},
-        //         "longer-secret-key-is-better",
-        //     {
-        //       expiresIn: "24h",
-        //     }
-        // );
-
-        res.status(200).json({ message: "Your otp will be send successfully" ,phone_number: user.phoneNo});
+        if (updateOtp) {
+            
+        res.status(200).json({ message: "Your otp will be send successfully" ,phone_number: user.phoneNo,updated_Otp : updateOtp.otp});
       } else {
         res.status(400).json({ error: "Invalid otp" });
       }
     }else{
-        res.status(400).json({message:"Not Found"})
+        res.status(400).json({message:"PhoneNo Not Found"})
     }
   };
 
@@ -109,29 +96,24 @@ const login = async(req,res)=>{
               expiresIn: "24h",
             }
         );
-          return res.status(200).json({message:"Login successfully",result:checkPhone, token:token})
-
-        // }else{
-        //   return res.status(400).json({error:error,message:"invalid otp"})
-
+          return res.status(200).json({message:"Login successfully",result:checkPhone, Token:token})
+        }else{
+          return res.status(400).json({error:error,message:"Invalid otp"})
         }
-      else{
-        return res.status(400).json({error:error,message:"Invalid otp"})
-      }
 
     }catch(error){
       return res.status(400).send({message:"Something went wrong",error:error})
     }
-  }
+  };
 
   const findOtp = async(req,res)=>{
-// console.log(req)
-      try{
+ 
+    try{
     console.log(req.body,"...................")
 
       let {otp} = req.body
        
-      const data = await User.find({otp:otp})
+      const data = await User.find({})
 
       return res.send({message:"success",data:data})
 
@@ -157,7 +139,7 @@ const list = async(req,res) => {
   }catch(error){
     res.status(400).send({message:"something went wrong",error:error})
   }
-}
+};
 
 const update = async(req,res)=>{
     
@@ -220,9 +202,6 @@ const deleteall = async(req,res)=>{
 
   }
 };
-
-
-
 module.exports = {
     SignUp : SignUp,
     login: login,

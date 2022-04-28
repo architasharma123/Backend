@@ -1,17 +1,17 @@
 var nodemailer = require("nodemailer");
 const handlebars = require("handlebars")
 var path = require('path')
-var fs=require('fs');
+var fs = require('fs');
 
 const mail = async(req,res, useremail , userdata)=>{ 
     const filePath = path.join(__dirname, "./html.html");
     const source = fs.readFileSync(filePath, "utf-8").toString();
     const template = handlebars.compile(source);
     var replacements = {
-            phoneNo: userdata.phoneNo, // user token firstname
-            email : userdata.email,
-            otp : userdata.otp // user token email
-        };
+            phoneNo: userdata.phoneNo, // user token phoneNo
+            email : userdata.email,// user token email
+            otp : userdata.otp
+    };
     var htmlToSend = template(replacements);
     console.log("mailer")
     console.log(__dirname)
@@ -21,7 +21,7 @@ const mail = async(req,res, useremail , userdata)=>{
         user: 'archita.eminence@gmail.com',
         pass: 'emiweb#@123'
     } 
-});
+    });
  console.log(sender)
  
 var mail = {
@@ -30,7 +30,7 @@ var mail = {
     subject: 'Sending Email using Node.js',
     text: 'That was easy!',
     html: htmlToSend
- };
+};
 
 sender.sendMail(mail, function (error, info) {
     if (error) {
