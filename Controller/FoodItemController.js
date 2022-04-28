@@ -7,7 +7,7 @@ const create = async (req, res, error) => {
     console.log(data, "....................");
     data.save();
     if (data) {
-      return res.status(200).json({ message: "success", data: data });
+      return res.status(201).json({ message: "Created success", data: data });
     } else {
       return res.send({ error: error });
     }
@@ -22,9 +22,9 @@ const get = async (req, res) => {
   try {
     const data = await foodData.find();
     console.log(data);
-    return res.status(200).json({ data: data });
+    return res.status(200).json({ message: "status okk", data: data });
   } catch (error) {
-    return res.status(400).send(error);
+    return res.status(400).json({ message: "Bad Request", error: error });
   }
 };
 
@@ -35,9 +35,9 @@ const getPopulate = async (req, res) => {
       .populate("userId")
       .populate("resturantId");
     console.log(data);
-    return res.status(200).json({ data: data });
+    return res.status(200).json({ message: "success", data: data });
   } catch (error) {
-    return res.status(400).send(error);
+    return res.status(400).json({ message: "Bad Request", error: error });
   }
 };
 
