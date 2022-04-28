@@ -12,6 +12,7 @@ const path = require('path');
 const fs = require('fs');
 const { Console } = require('console');
 const { mail } = require('../Mail/email');
+const UserAddress = require('../Models/UserAddress');
 
 const SignUp = async (req, res) => {
     await check('email').isEmail(['@','.']).withMessage("invalid email").run(req)
@@ -61,19 +62,19 @@ const login = async(req,res)=>{
     const {phoneNo} = req.body;
 
     const user = await User.findOne({phoneNo:phoneNo})
-  
+     console.log(user._id)
     if(user){
-      const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
+      const otp = otpGenerator.generate(4,{digits:true,lowerCaseAlphabets:false,upperCaseAlphabets:false,specialChars:false});
       const updateOtp = await User.findOneAndUpdate({_id:user._id},{otp:otp});
      
         if (updateOtp) {
             
-        res.status(200).json({ message: "Your otp will be send successfully" ,phone_number: user.phoneNo,updated_Otp : updateOtp.otp});
+        res.status(200).json({message:"Your otp will be send successfully",phone_number:user.phoneNo,updated_Otp : updateOtp.otp});
       } else {
-        res.status(400).json({ error: "Invalid otp" });
+        res.status(400).json({error:"Invalid otp"});
       }
     }else{
-        res.status(400).json({message:"PhoneNo Not Found"})
+        res.status(400).json({message:"PhoneNo Not Found"});
     }
   };
 
@@ -84,8 +85,9 @@ const login = async(req,res)=>{
     }
 
     try{
-      const {phoneNo , otp} = req.body
+      const {phoneNo,otp,lat,long} = req.body
       const checkPhone = await User.findOne({phoneNo:phoneNo})
+      console.log(checkPhone._id,"..............")
       console.log(checkPhone.otp)
       if(checkPhone.otp == otp){
         
@@ -96,7 +98,10 @@ const login = async(req,res)=>{
               expiresIn: "24h",
             }
         );
-          return res.status(200).json({message:"Login successfully",result:checkPhone, Token:token})
+        const data1 = await UserAddress.create({userId:checkPhone._id ,currentLocation:[lat,long]})
+
+        console.log(data1)
+          return res.status(200).json({message:"Login successfully",result:checkPhone,data1, Token:token})
         }else{
           return res.status(400).json({error:error,message:"Invalid otp"})
         }
@@ -172,6 +177,7 @@ const update = async(req,res)=>{
         console.log(user)
       
         const user1 = await User.findOneAndUpdate({
+
           _id:data.userId,
           email:req.body.email,
           phoneNo:req.body.phoneNo,

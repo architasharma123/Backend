@@ -7,6 +7,7 @@ const mail = async(req,res, useremail , userdata)=>{
     const filePath = path.join(__dirname, "./html.html");
     const source = fs.readFileSync(filePath, "utf-8").toString();
     const template = handlebars.compile(source);
+    
     var replacements = {
             phoneNo: userdata.phoneNo, // user token phoneNo
             email : userdata.email,// user token email
