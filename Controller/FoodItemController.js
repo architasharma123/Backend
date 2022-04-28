@@ -1,19 +1,16 @@
 const foodData = require("../Models/FoodItemModels");
 
-const create = async (req, res) => {
+const create = async (req, res, error) => {
   try {
-    const { foodName, price, type, Image } = req.body;
-
-    const obj = {
-      foodName,
-      price,
-      type,
-      Image,
-    };
-
-    const data = await foodData.create(obj);
-    //   data.save();
-    return res.status(200).json({ message: "success", data: data });
+    const { resturantId, foodName, type, price, Image, userId } = req.body;
+    const data = await foodData.create(req.body);
+    console.log(data, "....................");
+    data.save();
+    if (data) {
+      return res.status(200).json({ message: "success", data: data });
+    } else {
+      return res.send({ error: error });
+    }
   } catch (error) {
     return res
       .status(400)
@@ -23,11 +20,24 @@ const create = async (req, res) => {
 
 const get = async (req, res) => {
   try {
-    // console.log(req.header, "llllllllllllllllllllllll");
     const data = await foodData.find();
-    return res.status(200).json({ message: "success", data: data });
+    console.log(data);
+    return res.status(200).json({ data: data });
   } catch (error) {
-    return res.status(400).json({ message: "somthing wrong", error: error });
+    return res.status(400).send(error);
+  }
+};
+
+const getPopulate = async (req, res) => {
+  try {
+    const data = await foodData
+      .find()
+      .populate("userId")
+      .populate("resturantId");
+    console.log(data);
+    return res.status(200).json({ data: data });
+  } catch (error) {
+    return res.status(400).send(error);
   }
 };
 
@@ -53,4 +63,4 @@ const remove = async (req, res) => {
   }
 };
 
-module.exports = { create, get, patch, remove };
+module.exports = { create, get, patch, remove, getPopulate };

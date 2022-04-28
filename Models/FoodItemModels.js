@@ -3,7 +3,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const FoodItem = new mongoose.Schema({
+  userId: { type: Schema.Types.ObjectId, ref: "User" },
+
   resturantId: { type: Schema.Types.ObjectId, ref: "resturants" },
+
   foodName: { type: String },
   type: { type: String, enum: ["veg", "non-veg"] },
   price: { type: Number },

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const Schema = mongoose.Schema;
 
-const resturantSchema = new mongoose.Schema({
+const resturant = new mongoose.Schema({
   resturantName: { type: String },
 
   resturant_mobile_No: { type: Number, require: true },
@@ -29,5 +29,5 @@ const resturantSchema = new mongoose.Schema({
   updateAt: { type: Date, default: Date.now() },
 });
 
-const resturants = mongoose.model("resturantSchema", resturantSchema);
+const resturants = mongoose.model("resturants", resturant);
 module.exports = resturants;
