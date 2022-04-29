@@ -30,6 +30,8 @@ const router = express.Router();
 
 router.get("/populateData", controller_food.getPopulate);
 router.get("/", controller_food.get);
+router.get("/list", controller_food.list);
+
 
 router.post("/",upload.single('Image'), controller_food.create);
 router.patch("/:id", controller_food.patch);

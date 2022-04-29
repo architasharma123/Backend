@@ -67,4 +67,32 @@ const remove = async (req, res) => {
   }
 };
 
-module.exports = { create, get, patch, remove, getPopulate };
+const list = async(req,res,error)=> {
+
+  try{
+    let criteria = {};
+
+    let {foodName} = req.query
+
+    if(foodName){
+      criteria.foodName = {$regex : foodName}
+    }
+   // console.log(criteria);
+   
+   const data = await foodData.find(criteria)
+
+     if(data && data.length){
+
+      res.send({message:'List',count: data.length,result:data})
+    }
+    else{
+      res.send({message:"error",err:error})
+    }
+
+  }catch(error){
+    res.send({message:"something went wrong",error:error})
+  }
+};
+
+
+module.exports = {create,get,patch,remove,getPopulate,list};
