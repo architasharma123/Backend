@@ -10,7 +10,7 @@ function auth(req, res, next) {
     
 jwt.verify(token,"longer-secret-key-is-better", function(err, decoded) {
   if (err)
-  return res.status(500).send({ message: "token required", message: 'Failed to authenticate token.' });
+  return res.status(500).send({message: "token required", message: 'Failed to authenticate token.' });
     
   // if everything good, save to request for use in other routes
   req.userId = decoded.id;

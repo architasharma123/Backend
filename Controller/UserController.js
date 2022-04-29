@@ -32,7 +32,7 @@ const SignUp = async (req, res) => {
         return res.status(400).json({message:"User already registered"});
       
       } else { 
-        const otp = otpGenerator.generate(4, {digits : true , lowerCaseAlphabets :false , upperCaseAlphabets: false ,specialChars:false });
+        const otp = otpGenerator.generate(4,{digits:true,lowerCaseAlphabets:false,upperCaseAlphabets:false,specialChars:false});
         console.log(otp,"///////////////////")
         let userData = {
           name,
@@ -62,14 +62,14 @@ const login = async(req,res)=>{
     const {phoneNo} = req.body;
 
     const user = await User.findOne({phoneNo:phoneNo})
-     console.log(user._id)
+    console.log(user._id)
     if(user){
       const otp = otpGenerator.generate(4,{digits:true,lowerCaseAlphabets:false,upperCaseAlphabets:false,specialChars:false});
       const updateOtp = await User.findOneAndUpdate({_id:user._id},{otp:otp});
-     
+      console.log(updateOtp.otp,";;;;;;;;;;;;")
         if (updateOtp) {
             
-        res.status(200).json({message:"Your otp will be send successfully",phone_number:user.phoneNo,updated_Otp : updateOtp.otp});
+        res.status(200).json({message:"Your otp will be send successfully",phone_number:user.phoneNo,updated_Otp:updateOtp.otp});
       } else {
         res.status(400).json({error:"Invalid otp"});
       }

@@ -7,14 +7,17 @@ var path = require('path')
 
 const cron = require('node-cron');
 
-cron.schedule('* * * * *', () => {
-  console.log('running a task every minute');
-});
+// cron.schedule('* * * * *', () => {
+//   console.log('running a task every minute');
+// });
 
 const cors = require('cors');
 var app = express();
 const Routes = require('./Routes/UserRoute')
 const Route1 = require('./Routes/UserAddressRoute')
+const resturant_Routes = require("./Routes/ResturantRoutes");
+
+const food_routes = require("./Routes/FoodItemRoutes");
 
 const Router = express.Router();
 mongoose.connect('mongodb://localhost:27017/zomato');
@@ -29,6 +32,9 @@ app.use(bodyParser.json())
 
 app.use('/',Routes);
 app.use('/',Route1);
+
+app.use("/resturant", resturant_Routes);
+app.use("/fooditem", food_routes);
 
 // cron.schedule("0 0 28-31 * *", () => {
 //   if (date.getTomorrow() ===  "1") {
