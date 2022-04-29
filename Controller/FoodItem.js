@@ -1,10 +1,12 @@
 const foodData = require("../Models/FoodItem");
+const multer = require('multer');
+const path = require('path');
 
 const create = async (req, res, error) => {
   try {
-    const { resturantId, foodName, type, price, Image, userId, userAddressId } =
-      req.body;
-    const data = await foodData.create(req.body);
+    const { resturantId, foodName, type, price, Image, userId, userAddressId } = req.body;
+    const data = await foodData.create({...req.body,Image:req.file.path});
+    
     console.log(data, "....................");
     data.save();
     if (data) {
