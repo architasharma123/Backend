@@ -13,10 +13,11 @@ const fs = require('fs');
 const { Console } = require('console');
 const { mail } = require('../Mail/email');
 const UserAddress = require('../Models/UserAddress');
+const { sms } = require('../Mail/sms');
 
 const SignUp = async (req, res) => {
     await check('email').isEmail(['@','.']).withMessage("invalid email").run(req)
-    await check('phoneNo').isLength({min:10,max:12}).withMessage("invalid phoneNo").run(req)
+    await check('phoneNo').isLength({min:10,max:15}).withMessage("invalid phoneNo").run(req)
 
    var result = validationResult(req)
    console.log(result)
@@ -48,7 +49,7 @@ const SignUp = async (req, res) => {
     const user = useremail.email
     console.log(useremail,"..................")
     mail("","",user ,useremail)
-
+    sms(useremail);
     res.status(201).json({message:"Data registered successfully",result:data});
     }
 };

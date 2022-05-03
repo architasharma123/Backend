@@ -2,7 +2,9 @@ const resturantData = require("../Models/Resturant");
 
 const create = async (req, res, error) => {
   try {
-    const {
+    const { resturantName, resturant_mobile_No, discount, email, address, open_time, close_time, latitude, longitude }
+      = req.body;
+    let resturant = {
       resturantName,
       resturant_mobile_No,
       discount,
@@ -10,11 +12,10 @@ const create = async (req, res, error) => {
       address,
       open_time,
       close_time,
-      latitude,
-      longtude,
-    } = req.body;
+      currentLocation: [latitude, longitude]
+    }
 
-    const data = await resturantData.create(req.body);
+    const data = await resturantData.create(resturant);
     console.log(data);
     if (data) {
       return res.status(201).json({ message: "Created success", data: data });
@@ -58,4 +59,80 @@ const remove = async (req, res) => {
   }
 };
 
-module.exports = { create, get, patch, remove };
+const findLocation = async (req, res, error) => {
+  console.log("akakakak")
+
+  //var maxDistance = req.query.distance || 8;
+  //console.log(maxDistance,"............")
+
+  // maxDistance /= 6371;
+  // console.log(maxDistance,"...........")
+  //const { longitude, latitude, maxDistance } = req.query;
+
+  // var coords = [];
+  const latitude = parseFloat(req.query.latitude);
+  const longitude = parseFloat(req.query.longitude);
+
+  console.log(longitude, "++++++++++++++")
+
+  
+  const data = await resturantData.
+    // aggregate([{
+    //   "$geoNear": {
+    //     "near": {
+    //       "type": "Point",
+    //       "currentLocation": [latitude, longitude]
+    //     },
+    //     "spherical": true,
+    //     "maxDistance": 10 * 1609,
+    //     "distanceField": "distance"
+    //   }
+    // }])
+  //   aggregate([
+  //     { "$geoNear": {
+  //         "near": { 
+  //             "type": "Point", 
+  //             "coordinates": [ latitude , longitude]
+  //         },
+  //         "distanceField": "dist.calculated",
+  //         "maxDistance": 2,
+  //         "includeLocs": "dist.location",
+  //         "num": 5,
+  //         "spherical": true
+  //     }}
+  // ])
+  aggregate([
+    {$geoNear: {
+        near: {type: 'Point',coordinates: [latitude,longitude]},
+        distanceField: 'd',
+        key: 'coordinates'}}
+    ])
+  
+
+  //   $geoNear: {
+  //     near: { type: 'Point', currentLocation: [latitude, longitude] },
+  //     spherical: true, distanceField: 'distance', maxDistance: 7000,
+  //       }
+  // }
+
+  //     ])
+  // aggregate ([{
+  //   currentLocation: {
+  //   $near: {
+  //   $geometry: {
+  //   // type: "Point" ,
+  //   coordinates: [latitude,longitude ]
+  //   },
+  //   $maxDistance: 4,
+  //   $minDistance: 0
+  //   }
+  //   }
+  // }])
+  if (data) {
+    return res.status(200).send({ "message": "location", result: data })
+  } else {
+    return res.status(400).send({ error: error })
+  }
+}
+
+module.exports = { create, get, patch, remove, findLocation };

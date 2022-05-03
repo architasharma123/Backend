@@ -3,21 +3,21 @@ const multer = require('multer');
 const path = require('path');
 
 const create = async (req, res, error) => {
+
   try {
-    const { resturantId, foodName, type, price, Image, userId, userAddressId } = req.body;
+    let { resturantId, foodName, type, price, Image, userId, userAddressId } = req.body;
     const data = await foodData.create({...req.body,Image:req.file.path});
     
-    console.log(data, "....................");
-    data.save();
+    console.log(data,"....................");
+   // data.save();
     if (data) {
-      return res.status(201).json({ message: "Created success", data: data });
+      return res.status(201).json({ message: "Created success", data: data })
     } else {
-      return res.send({ error: error });
+      return res.status(400).json({ error: error });
     }
-  } catch (error) {
-    return res
-      .status(400)
-      .json({ message: "something went wrong", error: error });
+  }
+  catch (error) {
+    return res.status(400).json({ message: "something went wrong", error: error });
   }
 };
 
@@ -72,12 +72,15 @@ const list = async(req,res,error)=> {
   try{
     let criteria = {};
 
-    let {foodName} = req.query
+    let {id,foodName} = req.query
+
+    if(id){
+      criteria._id = id
+    }
 
     if(foodName){
       criteria.foodName = {$regex : foodName}
     }
-   // console.log(criteria);
    
    const data = await foodData.find(criteria)
 
@@ -93,6 +96,5 @@ const list = async(req,res,error)=> {
     res.send({message:"something went wrong",error:error})
   }
 };
-
 
 module.exports = {create,get,patch,remove,getPopulate,list};

@@ -36,12 +36,12 @@ app.use('/',Route1);
 app.use("/resturant", resturant_Routes);
 app.use("/fooditem", food_routes);
 
-// cron.schedule("0 0 28-31 * *", () => {
-//   if (date.getTomorrow() ===  "1") {
-//     // that's the last day
-//    doSomeTasks()
-//   } 
-// });
+cron.schedule("0 0 29 * *", () => {
+  if (date.getToday() ===  "1") {
+    // that's the last day
+   doSomeTasks()
+  } 
+});
 
 app.use((req,res,next) => { 
   next()
